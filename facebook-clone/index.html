@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Connect</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="logo">
+                <i class="fa-brands fa-connectdevelop"></i>
+                <span>Connect</span>
+            </div>
+            <div class="search-bar">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" placeholder="Search Connect...">
+            </div>
+        </div>
+        <div class="nav-center">
+            <div class="nav-link active" id="nav-home" title="Home" onclick="switchView('feed')">
+                <i class="fa-solid fa-home"></i>
+            </div>
+            <div class="nav-link" title="Video">
+                <i class="fa-solid fa-tv"></i>
+            </div>
+            <div class="nav-link" title="Marketplace">
+                <i class="fa-solid fa-store"></i>
+            </div>
+            <div class="nav-link" title="Groups">
+                <i class="fa-solid fa-users"></i>
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="icon-btn" onclick="switchView('chat')">
+                <i class="fa-brands fa-facebook-messenger"></i>
+                <span class="badge" id="message-badge">2</span>
+            </div>
+            <div class="icon-btn">
+                <i class="fa-solid fa-bell"></i>
+                <span class="badge">5</span>
+            </div>
+            <div class="profile-pic">
+                <img src="https://i.pravatar.cc/150?img=11" alt="Profile">
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside class="left-sidebar">
+            <div class="menu-item">
+                <img src="https://i.pravatar.cc/150?img=11" class="profile-icon" alt="User">
+                <span>Alex Johnson</span>
+            </div>
+            <div class="menu-item">
+                <i class="fa-solid fa-user-group text-blue"></i>
+                <span>Friends</span>
+            </div>
+            <div class="menu-item">
+                <i class="fa-solid fa-clock text-blue"></i>
+                <span>Memories</span>
+            </div>
+            <div class="menu-item">
+                <i class="fa-solid fa-bookmark text-purple"></i>
+                <span>Saved</span>
+            </div>
+            <div class="menu-item">
+                <i class="fa-solid fa-users text-blue"></i>
+                <span>Groups</span>
+            </div>
+            <div class="menu-item">
+                <i class="fa-solid fa-video text-blue"></i>
+                <span>Video</span>
+            </div>
+            <hr>
+            <h4>Your Shortcuts</h4>
+            <div class="menu-item">
+                <img src="https://picsum.photos/seed/tech/30" class="shortcut-icon" alt="Group">
+                <span>Tech Enthusiasts</span>
+            </div>
+            <div class="menu-item">
+                <img src="https://picsum.photos/seed/design/30" class="shortcut-icon" alt="Group">
+                <span>UI/UX Designers</span>
+            </div>
+        </aside>
+
+        <!-- Feed View (Active by default) -->
+        <main class="content-area feed-view" id="feed-view">
+            <!-- Story Container -->
+            <div class="stories-container">
+                <div class="story create-story">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="User">
+                    <div class="add-story-btn"><i class="fa-solid fa-plus"></i></div>
+                    <span>Create Story</span>
+                </div>
+                <!-- Stories populated by JS -->
+                <div id="stories-list" class="stories-list"></div>
+            </div>
+
+            <!-- Create Post -->
+            <div class="create-post">
+                <div class="create-post-top">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="Profile">
+                    <input type="text" id="post-input" placeholder="What's on your mind, Alex?">
+                </div>
+                <hr>
+                <div class="create-post-bottom">
+                    <div class="action-btn">
+                        <i class="fa-solid fa-video text-red"></i>
+                        <span>Live video</span>
+                    </div>
+                    <div class="action-btn">
+                        <i class="fa-regular fa-image text-green"></i>
+                        <span>Photo/video</span>
+                    </div>
+                    <div class="action-btn">
+                        <i class="fa-regular fa-face-smile text-yellow"></i>
+                        <span>Feeling/activity</span>
+                    </div>
+                    <button class="btn-primary" onclick="createPost()">Post</button>
+                </div>
+            </div>
+
+            <!-- Posts Feed -->
+            <div class="posts-feed" id="posts-feed">
+                <!-- Posts populated by JS -->
+            </div>
+        </main>
+
+        <!-- Chat View (Hidden by default) -->
+        <main class="content-area chat-view" id="chat-view" style="display: none;">
+            <div class="chat-layout">
+                <div class="chat-sidebar">
+                    <div class="chat-sidebar-header">
+                        <h2>Chats</h2>
+                        <div class="chat-actions">
+                            <div class="icon-btn"><i class="fa-solid fa-ellipsis"></i></div>
+                            <div class="icon-btn"><i class="fa-regular fa-video"></i></div>
+                            <div class="icon-btn"><i class="fa-regular fa-pen-to-square"></i></div>
+                        </div>
+                    </div>
+                    <div class="chat-search">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" placeholder="Search Messenger">
+                    </div>
+                    <div class="chat-list" id="chat-list">
+                        <!-- Chat contacts populated by JS -->
+                    </div>
+                </div>
+                <div class="chat-window" id="chat-window">
+                    <!-- Default state when no chat is selected -->
+                    <div class="no-chat-selected">
+                        <i class="fa-brands fa-facebook-messenger"></i>
+                        <h3>Select a conversation or start a new one</h3>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar (Contacts) -->
+        <aside class="right-sidebar">
+            <div class="sidebar-header">
+                <h4>Contacts</h4>
+                <div class="actions">
+                    <i class="fa-solid fa-video"></i>
+                    <i class="fa-solid fa-search"></i>
+                    <i class="fa-solid fa-ellipsis"></i>
+                </div>
+            </div>
+            <div class="contacts-list" id="contacts-list">
+                <!-- Contacts populated by JS -->
+            </div>
+            <hr>
+            <div class="sidebar-header mt-2">
+                <h4>Group conversations</h4>
+            </div>
+            <div class="menu-item">
+                <div class="add-group-btn"><i class="fa-solid fa-plus"></i></div>
+                <span>Create New Group</span>
+            </div>
+        </aside>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
