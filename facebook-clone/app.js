@@ -1,9 +1,5 @@
-// Mock Data
-const MY_USER = {
-    id: 'u0',
-    name: 'Alex Johnson',
-    avatar: 'https://i.pravatar.cc/150?img=11'
-};
+// 当前用户 (由 Firebase Auth 填充，未登录时为 null)
+let MY_USER = null;
 
 const FRIENDS = [
     { id: 'ai1', name: 'AI Assistant', avatar: 'https://i.pravatar.cc/150?img=60', isOnline: true },
@@ -61,13 +57,131 @@ let MESSAGES = {
 
 let activeChatFriendId = null;
 
-// Initialize App
-document.addEventListener('DOMContentLoaded', () => {
-    renderRightSidebar();
-    renderStories();
-    renderPosts();
-    renderChatSidebar();
-});
+// 等待 Firebase 初始化完成后启动应用
+function initApp() {
+    const { onAuthStateChanged, signIn, signUp, signInWithGoogle, signOutUser } = window.FirebaseAuth;
+    const overlay = document.getElementById('auth-overlay');
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const authError = document.getElementById('auth-error');
+    const authSwitchLink = document.getElementById('auth-switch-link');
+    const authSwitchText = document.getElementById('auth-switch-text');
+
+    function showError(msg) {
+        authError.textContent = msg;
+        authError.style.display = 'block';
+    }
+    function hideError() {
+        authError.style.display = 'none';
+    }
+
+    function showLogin() {
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+        authSwitchText.textContent = '还没有账号？';
+        authSwitchLink.textContent = '注册';
+        hideError();
+    }
+    function showSignup() {
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'block';
+        authSwitchText.textContent = '已有账号？';
+        authSwitchLink.textContent = '登录';
+        hideError();
+    }
+
+    authSwitchLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (loginForm.style.display === 'none') showLogin();
+        else showSignup();
+    });
+
+    document.getElementById('google-signin-btn').addEventListener('click', async () => {
+        hideError();
+        try {
+            await signInWithGoogle();
+        } catch (err) {
+            const msg = err.code === 'auth/popup-closed-by-user' ? '已取消登录' :
+                err.code === 'auth/popup-blocked' ? '请允许浏览器弹出窗口' : err.message;
+            showError(msg);
+        }
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideError();
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        try {
+            await signIn(email, password);
+        } catch (err) {
+            showError(err.code === 'auth/invalid-credential' ? '邮箱或密码错误' : err.message);
+        }
+    });
+
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideError();
+        const email = document.getElementById('signup-email').value.trim();
+        const password = document.getElementById('signup-password').value;
+        try {
+            await signUp(email, password);
+        } catch (err) {
+            const msg = err.code === 'auth/email-already-in-use' ? '该邮箱已被注册' :
+                err.code === 'auth/weak-password' ? '密码至少需要6位' : err.message;
+            showError(msg);
+        }
+    });
+
+    onAuthStateChanged((user) => {
+        if (user) {
+            MY_USER = {
+                id: user.uid,
+                name: user.displayName || user.email?.split('@')[0] || 'User',
+                avatar: user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`
+            };
+            overlay.classList.add('hidden');
+            renderRightSidebar();
+            renderStories();
+            renderPosts();
+            renderChatSidebar();
+            updateProfileUI();
+        } else {
+            MY_USER = null;
+            overlay.classList.remove('hidden');
+            showLogin();
+        }
+    });
+}
+
+function updateProfileUI() {
+    if (!MY_USER) return;
+    const imgs = document.querySelectorAll('.profile-pic img, .create-post img, .create-post-top img, .create-story img, .menu-item img.profile-icon');
+    imgs.forEach(img => {
+        if (img.alt === 'Profile' || img.alt === 'User') img.src = MY_USER.avatar;
+    });
+    const names = document.querySelectorAll('.left-sidebar .menu-item span');
+    if (names[0]) names[0].textContent = MY_USER.name;
+    const placeholder = document.getElementById('post-input');
+    if (placeholder) placeholder.placeholder = `What's on your mind, ${MY_USER.name}?`;
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) logoutBtn.style.display = 'flex';
+}
+
+function handleLogout() {
+    window.FirebaseAuth?.signOutUser();
+}
+
+// Initialize App (等待 Firebase 就绪)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.FirebaseAuth) initApp();
+        else window.addEventListener('firebase-auth-ready', initApp);
+    });
+} else {
+    if (window.FirebaseAuth) initApp();
+    else window.addEventListener('firebase-auth-ready', initApp);
+}
 
 // View Navigation
 function switchView(viewName) {
@@ -88,7 +202,7 @@ function openChatWithFriend(friendId) {
 
 // Rendering Functions
 function getUser(id) {
-    if (id === MY_USER.id) return MY_USER;
+    if (MY_USER && id === MY_USER.id) return MY_USER;
     return FRIENDS.find(f => f.id === id);
 }
 
