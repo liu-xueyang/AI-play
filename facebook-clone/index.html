@@ -12,6 +12,36 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- 登录/注册遮罩 (未登录时显示) -->
+    <div class="auth-overlay" id="auth-overlay">
+        <div class="auth-box">
+            <div class="auth-header">
+                <i class="fa-brands fa-connectdevelop"></i>
+                <h2>Connect</h2>
+                <p>登录或注册以继续</p>
+            </div>
+            <div id="auth-error" class="auth-error" style="display:none;"></div>
+            <button type="button" class="btn-google btn-block" id="google-signin-btn">
+                <i class="fa-brands fa-google"></i> 使用 Google 登录
+            </button>
+            <div class="auth-divider"><span>或</span></div>
+            <form id="login-form" class="auth-form">
+                <input type="email" id="login-email" placeholder="邮箱" required>
+                <input type="password" id="login-password" placeholder="密码" required>
+                <button type="submit" class="btn-primary btn-block">登录</button>
+            </form>
+            <form id="signup-form" class="auth-form" style="display:none;">
+                <input type="text" id="signup-name" placeholder="显示名称 (可选)">
+                <input type="email" id="signup-email" placeholder="邮箱" required>
+                <input type="password" id="signup-password" placeholder="密码 (至少6位)" required minlength="6">
+                <button type="submit" class="btn-primary btn-block">注册</button>
+            </form>
+            <div class="auth-switch">
+                <span id="auth-switch-text">还没有账号？</span>
+                <a href="#" id="auth-switch-link">注册</a>
+            </div>
+        </div>
+    </div>
     <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-left">
@@ -47,8 +77,11 @@
                 <i class="fa-solid fa-bell"></i>
                 <span class="badge">5</span>
             </div>
-            <div class="profile-pic">
+            <div class="profile-pic" id="nav-profile">
                 <img src="https://i.pravatar.cc/150?img=11" alt="Profile">
+            </div>
+            <div class="icon-btn" id="logout-btn" title="退出登录" style="display:none" onclick="handleLogout()">
+                <i class="fa-solid fa-right-from-bracket"></i>
             </div>
         </div>
     </nav>
@@ -190,6 +223,7 @@
         </aside>
     </div>
 
+    <script type="module" src="firebase-auth.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
